@@ -35,7 +35,6 @@ public class APIExecutor {
 
     public OCRAPIWrapper process(String imageUrl) {
         imageUrl = aws(imageUrl);
-        System.out.println(imageUrl);
         try {
             URL obj = new URL(baseUrl); // OCR API Endpoints
             HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
@@ -99,7 +98,8 @@ public class APIExecutor {
         return result.toString();
     }
 
-    public static String aws(String imageUrl) {
+    public String aws(final String imageUrl) {
+        System.out.println("Starting thread : " + Thread.currentThread().getId());
         final long startTime = System.currentTimeMillis();
         AWSCredentials credentials = new BasicAWSCredentials("AKIAIQRNVAGHVSCD6EYA", "/lbj25SjFvvwFBbj9vsDRvXZu6fTZj3qtssDmApM");
         AmazonS3 s3client = new AmazonS3Client(credentials);
@@ -107,8 +107,10 @@ public class APIExecutor {
                 new File(DefaultPaths.defaultImagePath + imageUrl)).withCannedAcl(CannedAccessControlList.PublicRead));
         final long duration = System.currentTimeMillis() - startTime;
         System.out.println("AWS : (Seconds)" + duration / 1000);
+        System.out.print(AWSBaseURl + imageUrl);
         return AWSBaseURl + imageUrl;
-
     }
+
+
 
 }

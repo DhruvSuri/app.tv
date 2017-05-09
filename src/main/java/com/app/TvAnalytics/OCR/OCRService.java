@@ -11,19 +11,43 @@ public class OCRService {
     public static OCRService instance = new OCRService();
 
     public void doOCR(CreativeIdentificationTask task) {
-        System.out.println("Processing : " + task.getImageUrl());
+        Runnable runner = new OCRRunnable(task);
+        Thread worker = new Thread(runner);
+
+        worker.start();
+    }
+
+    public void doOCRThreaded(CreativeIdentificationTask task) {
         OCRAPIWrapper ocr = APIExecutor.getInstance().process(task.getImageUrl());
+        if (ocr == null) {
+            return;
+        }
         if (ocr.getErroredOnProcessing()) {
             task.setIdentified(false);
             return;
         }
         task.setIdentified(true);
         String parsedText = ocr.getParsedResults().get(0).getParsedText();
-        parsedText = parsedText.replace("\n"," ");
-        parsedText = parsedText.replace("\r"," ");
+        parsedText = parsedText.replace("\n", " ");
+        parsedText = parsedText.replace("\r", " ");
 
         task.setKeywords(Arrays.asList(parsedText.split(" ")));
 
-        System.out.println("Keywords : " + task.getKeywords());
+        System.out.println("KEYWORDS EXTRACTED : " + task.getKeywords());
+    }
+
+    public class OCRRunnable implements Runnable {
+
+
+        CreativeIdentificationTask task;
+
+        OCRRunnable(CreativeIdentificationTask task) {
+            this.task = task;
+        }
+
+        @Override
+        public void run() {
+            doOCR(task);
+        }
     }
 }

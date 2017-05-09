@@ -6,7 +6,7 @@ package com.app.Redis;
  * Created by dhruv.suri on 12/04/17.
  */
 public class RedisFactory {
-    private static final String host = "localhost";
+    private static final String host = "52.66.66.36";
 
     public static void image(String imageUrl) {
         getRedisConnection().rpush("IMAGE", imageUrl);
