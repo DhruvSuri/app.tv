@@ -66,7 +66,9 @@ public class APIExecutor {
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }
-            return AzazteUtils.fromJson(response.toString(), OCRAPIWrapper.class);
+            OCRAPIWrapper wrapper = AzazteUtils.fromJson(response.toString(), OCRAPIWrapper.class);
+            wrapper.setImageUrl(imageUrl);
+            return wrapper;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -99,15 +101,12 @@ public class APIExecutor {
     }
 
     public String aws(final String imageUrl) {
-        System.out.println("Starting thread : " + Thread.currentThread().getId());
         final long startTime = System.currentTimeMillis();
         AWSCredentials credentials = new BasicAWSCredentials("AKIAIQRNVAGHVSCD6EYA", "/lbj25SjFvvwFBbj9vsDRvXZu6fTZj3qtssDmApM");
         AmazonS3 s3client = new AmazonS3Client(credentials);
         s3client.putObject(new PutObjectRequest("tv-image", imageUrl,
                 new File(DefaultPaths.defaultImagePath + imageUrl)).withCannedAcl(CannedAccessControlList.PublicRead));
         final long duration = System.currentTimeMillis() - startTime;
-        System.out.println("AWS : (Seconds)" + duration / 1000);
-        System.out.println(AWSBaseURl + imageUrl);
         return AWSBaseURl + imageUrl;
     }
 

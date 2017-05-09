@@ -19,20 +19,15 @@ public class OCRService {
 
         Runnable worker = new OCRRunnable(task);
         executor.execute(worker);
-
-//        executor.shutdown();
-//        while (!executor.isTerminated()) {
-//        }
-        System.out.println("Finished all threads");
     }
 
     public void doOCRThreaded(CreativeIdentificationTask task) {
         OCRAPIWrapper ocr = APIExecutor.getInstance().process(task.getImageUrl());
-        if (ocr == null) {
-            return;
-        }
+
+
         if (ocr.getErroredOnProcessing()) {
             task.setIdentified(false);
+            System.out.println("Current Thread " + Thread.currentThread().getId() + "Image URL : " + ocr.getImageUrl() + "  Status : Unidentified");
             return;
         }
         task.setIdentified(true);
@@ -41,8 +36,8 @@ public class OCRService {
         parsedText = parsedText.replace("\r", " ");
 
         task.setKeywords(Arrays.asList(parsedText.split(" ")));
+        System.out.println("Current Thread " + Thread.currentThread().getId() + "Image URL : " + ocr.getImageUrl() + "  Status : Unidentified" + "     KEYWORDS EXTRACTED : " + task.getKeywords());
 
-        System.out.println("KEYWORDS EXTRACTED : " + task.getKeywords());
     }
 
     public class OCRRunnable implements Runnable {
@@ -56,7 +51,7 @@ public class OCRService {
 
         @Override
         public void run() {
-            System.out.println("Current Thread " + Thread.currentThread().getId());
+
             doOCRThreaded(task);
         }
     }

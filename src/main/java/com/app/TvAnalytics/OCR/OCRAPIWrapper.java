@@ -7,10 +7,20 @@ import java.util.List;
  */
 public class OCRAPIWrapper {
     private int OCRExitCode;
+    private String imageUrl;
     private Boolean IsErroredOnProcessing;
     private String ErrorMessage;
     private String ProcessingTimeInMilliseconds;
     private List<ParsedResult> ParsedResults;
+
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
     public List<ParsedResult> getParsedResults() {
         return ParsedResults;
