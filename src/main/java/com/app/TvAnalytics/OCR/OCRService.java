@@ -20,7 +20,7 @@ public class OCRService {
         Runnable worker = new OCRRunnable(task);
         executor.execute(worker);
 
-        executor.shutdown();
+//        executor.shutdown();
         while (!executor.isTerminated()) {
         }
         System.out.println("Finished all threads");
