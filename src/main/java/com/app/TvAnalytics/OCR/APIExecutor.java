@@ -107,7 +107,7 @@ public class APIExecutor {
                 new File(DefaultPaths.defaultImagePath + imageUrl)).withCannedAcl(CannedAccessControlList.PublicRead));
         final long duration = System.currentTimeMillis() - startTime;
         System.out.println("AWS : (Seconds)" + duration / 1000);
-        System.out.print(AWSBaseURl + imageUrl);
+        System.out.println(AWSBaseURl + imageUrl);
         return AWSBaseURl + imageUrl;
     }
 

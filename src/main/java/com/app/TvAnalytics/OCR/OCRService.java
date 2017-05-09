@@ -3,6 +3,8 @@ package com.app.TvAnalytics.OCR;
 import com.app.TvAnalytics.CreativeIdentificationTask;
 
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by dhruv.suri on 12/04/17.
@@ -10,11 +12,18 @@ import java.util.Arrays;
 public class OCRService {
     public static OCRService instance = new OCRService();
 
-    public void doOCR(CreativeIdentificationTask task) {
-        Runnable runner = new OCRRunnable(task);
-        Thread worker = new Thread(runner);
+    ExecutorService executor = Executors.newFixedThreadPool(5);
 
-        worker.start();
+
+    public void doOCR(CreativeIdentificationTask task) {
+
+        Runnable worker = new OCRRunnable(task);
+        executor.execute(worker);
+
+        executor.shutdown();
+        while (!executor.isTerminated()) {
+        }
+        System.out.println("Finished all threads");
     }
 
     public void doOCRThreaded(CreativeIdentificationTask task) {
@@ -47,6 +56,7 @@ public class OCRService {
 
         @Override
         public void run() {
+            System.out.println("Current Thread " + Thread.currentThread().getId());
             doOCRThreaded(task);
         }
     }

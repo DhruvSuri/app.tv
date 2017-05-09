@@ -6,5 +6,5 @@ package com.app.TvAnalytics;
 public class DefaultPaths {
     public static String defaultVideoPath = "Video/";
     public static String defaultImagePath = "Image/";
-    public static double defaultFrameRate = 0.4;
+    public static double defaultFrameRate = 0.6;
 }
