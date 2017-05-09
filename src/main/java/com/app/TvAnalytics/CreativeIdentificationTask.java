@@ -20,6 +20,7 @@ public class CreativeIdentificationTask {
     }
 
     public CreativeIdentificationTask(String imageUrl) {
+        this.identified = false;
         this.imageUrl = imageUrl;
     }
 
