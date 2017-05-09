@@ -33,7 +33,8 @@ public class APIExecutor {
     }
 
     public OCRAPIWrapper process(String imageUrl) {
-//        imageUrl = aws(imageUrl);
+        imageUrl = aws(imageUrl);
+        System.out.println(imageUrl);
         try {
             URL obj = new URL(baseUrl); // OCR API Endpoints
             HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
@@ -48,7 +49,7 @@ public class APIExecutor {
 
             postDataParams.put("apikey", "PKMXB3765888A");
             postDataParams.put("isOverlayRequired", false);
-            postDataParams.put("url", "Image/" + imageUrl);
+            postDataParams.put("url", imageUrl);
 
 
             // Send post request
