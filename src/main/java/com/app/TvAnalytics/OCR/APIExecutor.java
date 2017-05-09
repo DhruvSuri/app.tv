@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.app.TvAnalytics.DefaultPaths;
 import twitter4j.JSONObject;
 import com.app.utils.AzazteUtils;
 
@@ -103,7 +104,7 @@ public class APIExecutor {
         AWSCredentials credentials = new BasicAWSCredentials("AKIAIQRNVAGHVSCD6EYA", "/lbj25SjFvvwFBbj9vsDRvXZu6fTZj3qtssDmApM");
         AmazonS3 s3client = new AmazonS3Client(credentials);
         s3client.putObject(new PutObjectRequest("tv-image", imageUrl,
-                new File("image/" + imageUrl)).withCannedAcl(CannedAccessControlList.PublicRead));
+                new File(DefaultPaths.defaultImagePath + imageUrl)).withCannedAcl(CannedAccessControlList.PublicRead));
         final long duration = System.currentTimeMillis() - startTime;
         System.out.println("AWS : (Seconds)" + duration / 1000);
         return AWSBaseURl + imageUrl;
