@@ -27,6 +27,7 @@ public class BaseService {
             String imageUrl = RedisFactory.image();
             if (imageUrl == null) {
                 try {
+                    System.out.println("OCR thread sleeping");
                     Thread.sleep(2000);
                     continue;
                 } catch (InterruptedException e) {

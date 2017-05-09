@@ -47,7 +47,7 @@ public class OCRService {
 
         @Override
         public void run() {
-            doOCR(task);
+            doOCRThreaded(task);
         }
     }
 }
