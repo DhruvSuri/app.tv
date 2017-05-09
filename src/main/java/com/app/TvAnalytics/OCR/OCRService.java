@@ -21,8 +21,8 @@ public class OCRService {
         executor.execute(worker);
 
 //        executor.shutdown();
-        while (!executor.isTerminated()) {
-        }
+//        while (!executor.isTerminated()) {
+//        }
         System.out.println("Finished all threads");
     }
 
