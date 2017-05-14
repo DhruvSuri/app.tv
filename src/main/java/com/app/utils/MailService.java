@@ -22,10 +22,13 @@ public class MailService {
 
     public void sendMail(String text,boolean onlyMe) {
         String to;
+        String subject;
         if(onlyMe){
+            subject = "TV : Keyword";
             to = "sdhruv93@gmail.com";
         }else {
-            to = "aanand@nextpixar.com";
+            subject = "Ad Identified";
+            to = "aanand@nextpixar.com,dhruv.suri@oyorooms.com";
         }
 
         final String username = "sdhruv93@gmail.com";
@@ -50,7 +53,7 @@ public class MailService {
             message.setFrom(new InternetAddress("sdhruv93@gmail.com"));
             message.setRecipients(Message.RecipientType.TO,
                     InternetAddress.parse(to));
-            message.setSubject("TV Analytics");
+            message.setSubject(subject);
             message.setText(text);
 
             Transport.send(message);
