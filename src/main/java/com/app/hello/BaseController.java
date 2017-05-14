@@ -22,6 +22,9 @@ public class BaseController {
     @Autowired
     ProxyService proxyService;
 
+    @Autowired
+    BaseService baseService;
+
 
     @RequestMapping(method = RequestMethod.GET, value = "/fetchFeed")
     public void startPollingFeed(@RequestParam("chunkUrl") String chunkUrl) {
@@ -36,7 +39,7 @@ public class BaseController {
 
     @RequestMapping(method = RequestMethod.GET, value = "analyze")
     public void startAnalyzing() {
-        BaseService.getInstance().identifyCreative();
+        baseService.identifyCreative();
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "proxy")

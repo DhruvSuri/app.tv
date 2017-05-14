@@ -3,6 +3,7 @@ package com.app.TvAnalytics;
 import com.app.Redis.RedisFactory;
 import com.app.TvAnalytics.OCR.OCRService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.util.*;
 /**
  * Created by dhruv.suri on 12/04/17.
  */
+@Service
 public class BaseService {
     public static Map<String, List<String>> keywordMap = initializeMap();
     private static BaseService instance = new BaseService();
