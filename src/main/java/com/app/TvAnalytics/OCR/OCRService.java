@@ -2,6 +2,8 @@ package com.app.TvAnalytics.OCR;
 
 import com.app.TvAnalytics.BaseService;
 import com.app.TvAnalytics.CreativeIdentificationTask;
+import com.app.utils.MailService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -16,6 +18,9 @@ import java.util.concurrent.Executors;
  */
 @Service
 public class OCRService {
+
+    @Autowired
+    MailService mailer;
 
     private ExecutorService executor = Executors.newFixedThreadPool(5);
 
@@ -42,7 +47,7 @@ public class OCRService {
 
             task.setKeywords(Arrays.asList(parsedText.split(" ")));
             System.out.println("Current Thread " + Thread.currentThread().getId() + "Image URL : " + ocr.getImageUrl() + "  Status : Identified" + "     KEYWORDS EXTRACTED : " + task.getKeywords());
-
+            mailer.sendMail("Image URL : " + ocr.getImageUrl() + "  Status : Identified" + "     KEYWORDS EXTRACTED : " + task.getKeywords(), true);
 
             Map<String, Integer> majorityMap = new HashMap<>();
             for (String keyword : task.getKeywords()) {
@@ -63,6 +68,8 @@ public class OCRService {
                 Map.Entry<String, Integer> entry = majorityMap.entrySet().iterator().next();
                 //TODO Build timeline here
                 System.out.println("[IDENTIFIED] : " + task.getImageUrl() + " " + entry.getKey());
+                mailer.sendMail("[IDENTIFIED] : " + entry.getKey(), false);
+                mailer.sendMail("[IDENTIFIED] : " + task.getImageUrl() + entry.getKey(), true);
             }
         }
 
