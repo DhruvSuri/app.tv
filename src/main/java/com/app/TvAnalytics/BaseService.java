@@ -2,6 +2,7 @@ package com.app.TvAnalytics;
 
 import com.app.Redis.RedisFactory;
 import com.app.TvAnalytics.OCR.OCRService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,8 +13,11 @@ import java.util.*;
  * Created by dhruv.suri on 12/04/17.
  */
 public class BaseService {
-    private static Map<String, List<String>> keywordMap = initializeMap();
+    public static Map<String, List<String>> keywordMap = initializeMap();
     private static BaseService instance = new BaseService();
+
+    @Autowired
+    OCRService ocrService;
 
     private BaseService() {
     }
@@ -35,32 +39,8 @@ public class BaseService {
                 }
             }
             CreativeIdentificationTask task = new CreativeIdentificationTask(imageUrl);
-            OCRService.instance.doOCR(task);
+            ocrService.doOCR(task, keywordMap);
 
-            if (!task.getIdentified()) {
-                continue;
-            }
-
-            Map<String, Integer> majorityMap = new HashMap<>();
-            for (String keyword : task.getKeywords()) {
-                if (keywordMap.containsKey(keyword)) {
-                    List<String> creatives = keywordMap.get(keyword);
-                    for (String creative : creatives) {
-                        if (!majorityMap.containsKey(creative)) {
-                            majorityMap.put(creative, 1);
-                            continue;
-                        }
-                        majorityMap.put(creative, majorityMap.get(creative) + 1);
-                    }
-                }
-            }
-
-
-            if (majorityMap.size() == 1) {
-                Map.Entry<String, Integer> entry = majorityMap.entrySet().iterator().next();
-                //TODO Build timeline here
-                System.out.println("[IDENTIFIED] : " + imageUrl + " " + entry.getKey());
-            }
         }
 
     }
@@ -91,6 +71,7 @@ public class BaseService {
                     }
                 }
             }
+            System.out.println("KeyWord Map : Keys : " + keywordMap.keySet().size() + "  Values : " + keywordMap.values().size());
 
         } catch (IOException ex) {
             ex.printStackTrace();

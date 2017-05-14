@@ -20,12 +20,13 @@ public class ImageService {
             while (true) {
                 String videoUrl = RedisFactory.video();
                 if (videoUrl == null) {
+                    System.out.println("Image Poll waiting");
                     Thread.sleep(2000);
                     continue;
                 }
                 try {
                     VideoToImageConvertor.getInstance().convert(videoUrl);
-                    System.out.println("Video converted : " + videoUrl);
+
                 } catch (Exception e) {
 
                 }

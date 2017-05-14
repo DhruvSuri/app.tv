@@ -17,7 +17,7 @@ import java.util.*;
 public class FeedService {
     private static FeedService instance = new FeedService();
 
-    private String baseUrl = "http://dittotv.live-s.cdn.bitgravity.com/cdn-live/_definst_/dittotv/secure/sony_sab_Web.smil/";
+    private String baseUrl = "http://dittotv.live-s.cdn.bitgravity.com/cdn-live/_definst_/dittotv/secure/sony_ent_Web.smil/";
     private Set<String> alreadyFetchedVideos = new HashSet<>();
 
     public static FeedService getInstance() {
@@ -30,10 +30,11 @@ public class FeedService {
 
 
             while (BaseController.isPollingEnabled) {
-                System.out.println("Polling");
-                Thread.sleep(3000);
+
+                Thread.sleep(2000);
                 List<String> videoListFromChunkList = getVideoListFromChunkList(chunkUrl);
                 if (videoListFromChunkList == null || videoListFromChunkList.size() == 0) {
+                    System.out.println("Video Poll waiting");
                     continue;
                 }
 

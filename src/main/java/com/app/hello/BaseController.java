@@ -3,11 +3,12 @@ package com.app.hello;
 import com.app.TvAnalytics.BaseService;
 import com.app.TvAnalytics.FeedService;
 import com.app.TvAnalytics.ImageService;
+import com.app.proxy.Beans.RequestDTO;
+import com.app.proxy.ProxyService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
 import java.io.FileOutputStream;
 
@@ -18,7 +19,8 @@ public class BaseController {
     @Autowired
     ImageService imageService;
 
-
+    @Autowired
+    ProxyService proxyService;
 
 
     @RequestMapping(method = RequestMethod.GET, value = "/fetchFeed")
@@ -35,6 +37,15 @@ public class BaseController {
     @RequestMapping(method = RequestMethod.GET, value = "analyze")
     public void startAnalyzing() {
         BaseService.getInstance().identifyCreative();
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "proxy")
+    public String doProxy(WebRequest request, @RequestHeader("Authorization") String apikey) {
+        if (!proxyService.authorizeUser(apikey)) {
+            return "Authorization Failed";
+        }
+        proxyService.doProxy(request.getParameterMap());
+        return null;
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "testPath")
