@@ -5,6 +5,7 @@ import com.app.TvAnalytics.FeedService;
 import com.app.TvAnalytics.ImageService;
 import com.app.proxy.Beans.RequestDTO;
 import com.app.proxy.ProxyService;
+import com.app.proxy.SocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,8 @@ public class BaseController {
     @Autowired
     BaseService baseService;
 
+    @Autowired
+    SocketService socketService;
 
     @RequestMapping(method = RequestMethod.GET, value = "/fetchFeed")
     public void startPollingFeed(@RequestParam("chunkUrl") String chunkUrl) {
@@ -50,6 +53,14 @@ public class BaseController {
         proxyService.doProxy(request.getParameterMap());
         return null;
     }
+
+    @RequestMapping(method = RequestMethod.GET, value = "clearProxyList")
+    public void clearProxyList() {
+        socketService.cleanConnectionPool();
+        System.out.println("Cleared connection pool");
+    }
+
+
 
     @RequestMapping(method = RequestMethod.GET, value = "testPath")
     public void testPath() {
