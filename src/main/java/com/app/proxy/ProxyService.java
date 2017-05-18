@@ -19,6 +19,7 @@ public class ProxyService {
 
     public void doProxy(Map<String, String[]> headers) {
         String response = socketService.sendProxyRequest(headers.get("url")[0]);
+        System.out.println(response);
 
         if (!headers.containsKey("url")) {
             headers.remove("url");
