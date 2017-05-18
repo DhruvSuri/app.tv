@@ -49,15 +49,23 @@ public class SocketService {
 
     }
 
-    public void cleanConnectionPool(){
+    public void cleanConnectionPool() {
         list.clear();
     }
 
     public String sendProxyRequest(String url) {
+        if (list.size() == 0) {
+            System.out.println("No Connections available..!!");
+            return null;
+        }
+
+
         ServerThread temp = list.get(DateTime.now().getMillisOfSecond() % list.size());
         if (temp.isSocketConnected()) {
             System.out.println("SENDING TO: " + temp.hashCode());
             return temp.sendRequest(url);
+        } else {
+            list.remove(temp);
         }
         return null;
     }
