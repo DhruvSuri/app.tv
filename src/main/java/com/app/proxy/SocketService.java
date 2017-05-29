@@ -13,7 +13,8 @@ import java.util.*;
  */
 @Service
 public class SocketService {
-    final Queue<ServerThread> list = new LinkedList<>();
+    final Queue<ServerThread> queue = new LinkedList<>();
+    final List<ServerThread> list = new ArrayList<>();
     private final int DefaultPort = 12345;
     private Socket socket = null;
     private ServerSocket serverSocket = null;
@@ -48,14 +49,10 @@ public class SocketService {
     }
 
     public void cleanConnectionPool() {
-        int size = list.size();
-        int i = 0;
-        while (i < size) {
-            ServerThread thread = list.poll();
-            if (thread.isSocketConnected()) {
-                list.add(thread);
+        for (ServerThread serverThread : list) {
+            if (serverThread.isSocketConnected()){
+                queue.add(serverThread);
             }
-            i++;
         }
     }
 
@@ -65,11 +62,10 @@ public class SocketService {
             return null;
         }
 
-
-        ServerThread serverThread = list.poll();
+        
+        ServerThread serverThread = queue.poll();
         if (serverThread.isSocketConnected()) {
             System.out.println("SENDING TO: " + serverThread.hashCode());
-            list.add(serverThread);
             return serverThread.sendRequest(url);
         } else {
             list.remove(serverThread);
