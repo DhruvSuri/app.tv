@@ -6,16 +6,14 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by dhruv.suri on 11/05/17.
  */
 @Service
 public class SocketService {
-    final List<ServerThread> list = new ArrayList();
+    final Queue<ServerThread> list = new LinkedList<>();
     private final int DefaultPort = 12345;
     private Socket socket = null;
     private ServerSocket serverSocket = null;
@@ -50,10 +48,14 @@ public class SocketService {
     }
 
     public void cleanConnectionPool() {
-        for (ServerThread serverThread : list) {
-            if (!serverThread.isSocketConnected()){
-                list.remove(serverThread);
+        int size = list.size();
+        int i = 0;
+        while (i < size) {
+            ServerThread thread = list.poll();
+            if (thread.isSocketConnected()) {
+                list.add(thread);
             }
+            i++;
         }
     }
 
@@ -64,9 +66,10 @@ public class SocketService {
         }
 
 
-        ServerThread serverThread = list.get(DateTime.now().getMillisOfSecond() % list.size());
+        ServerThread serverThread = list.poll();
         if (serverThread.isSocketConnected()) {
             System.out.println("SENDING TO: " + serverThread.hashCode());
+            list.add(serverThread);
             return serverThread.sendRequest(url);
         } else {
             list.remove(serverThread);
