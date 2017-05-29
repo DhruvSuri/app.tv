@@ -14,7 +14,6 @@ import java.util.*;
 @Service
 public class SocketService {
     final Queue<ServerThread> queue = new LinkedList<>();
-    final List<ServerThread> list = new ArrayList<>();
     private final int DefaultPort = 12345;
     private Socket socket = null;
     private ServerSocket serverSocket = null;
@@ -35,8 +34,8 @@ public class SocketService {
                     try {
                         socket = serverSocket.accept();
                         ServerThread st = new ServerThread(socket);
-                        list.add(st);
-                        System.out.println("New connection Established.Total : " + list.size());
+                        queue.add(st);
+                        System.out.println("New connection Established.Total : " + queue.size());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -49,15 +48,19 @@ public class SocketService {
     }
 
     public void cleanConnectionPool() {
-        for (ServerThread serverThread : list) {
+        int size = queue.size();
+        int i = 0;
+        while(i < size){
+            ServerThread serverThread = queue.poll();
             if (serverThread.isSocketConnected()){
                 queue.add(serverThread);
             }
+            i++;
         }
     }
 
     public String sendProxyRequest(String url) {
-        if (list.size() == 0) {
+        if (queue.size() == 0) {
             System.out.println("No Connections available..!!");
             return null;
         }
@@ -67,8 +70,6 @@ public class SocketService {
         if (serverThread.isSocketConnected()) {
             System.out.println("SENDING TO: " + serverThread.hashCode());
             return serverThread.sendRequest(url);
-        } else {
-            list.remove(serverThread);
         }
         return null;
     }
