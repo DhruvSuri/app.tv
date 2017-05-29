@@ -48,6 +48,7 @@ public class SocketService {
     }
 
     public void cleanConnectionPool() {
+        System.out.println("Cleaning : " + queue.size());
         int size = queue.size();
         int i = 0;
         while(i < size){
@@ -57,6 +58,7 @@ public class SocketService {
             }
             i++;
         }
+        System.out.println("Cleaned : " + queue.size());
     }
 
     public String sendProxyRequest(String url) {
@@ -69,6 +71,7 @@ public class SocketService {
         ServerThread serverThread = queue.poll();
         if (serverThread.isSocketConnected()) {
             System.out.println("SENDING TO: " + serverThread.hashCode());
+            queue.add(serverThread);
             return serverThread.sendRequest(url);
         }
         return null;
