@@ -17,7 +17,6 @@ public class Scheduler {
     @Autowired
     SocketService socketService;
 
-    @Scheduled(fixedRate = 5000)
     public void proxyListCleaner() {
         socketService.cleanConnectionPool();
     }

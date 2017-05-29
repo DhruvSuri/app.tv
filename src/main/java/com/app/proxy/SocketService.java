@@ -51,9 +51,9 @@ public class SocketService {
         System.out.println("Cleaning : " + queue.size());
         int size = queue.size();
         int i = 0;
-        while(i < size){
+        while (i < size) {
             ServerThread serverThread = queue.poll();
-            if (serverThread.isSocketConnected()){
+            if (serverThread.isSocketConnected()) {
                 queue.add(serverThread);
             }
             i++;
@@ -67,13 +67,19 @@ public class SocketService {
             return null;
         }
 
-        
-        ServerThread serverThread = queue.poll();
-        if (serverThread.isSocketConnected()) {
+        while (queue.size() > 0) {
+            System.out.println(queue.size());
+            ServerThread serverThread = queue.poll();
+
             System.out.println("SENDING TO: " + serverThread.hashCode());
-            queue.add(serverThread);
-            return serverThread.sendRequest(url);
+            String response = serverThread.sendRequest(url);
+            if (response != null){
+                queue.add(serverThread);
+                return response;
+            }
         }
+
+
         return null;
     }
 
