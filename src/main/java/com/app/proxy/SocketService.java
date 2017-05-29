@@ -50,7 +50,11 @@ public class SocketService {
     }
 
     public void cleanConnectionPool() {
-        list.clear();
+        for (ServerThread serverThread : list) {
+            if (!serverThread.isSocketConnected()){
+                list.remove(serverThread);
+            }
+        }
     }
 
     public String sendProxyRequest(String url) {
@@ -60,12 +64,12 @@ public class SocketService {
         }
 
 
-        ServerThread temp = list.get(DateTime.now().getMillisOfSecond() % list.size());
-        if (temp.isSocketConnected()) {
-            System.out.println("SENDING TO: " + temp.hashCode());
-            return temp.sendRequest(url);
+        ServerThread serverThread = list.get(DateTime.now().getMillisOfSecond() % list.size());
+        if (serverThread.isSocketConnected()) {
+            System.out.println("SENDING TO: " + serverThread.hashCode());
+            return serverThread.sendRequest(url);
         } else {
-            list.remove(temp);
+            list.remove(serverThread);
         }
         return null;
     }

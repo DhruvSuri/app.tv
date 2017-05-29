@@ -22,7 +22,14 @@ public class ServerThread {
     }
 
     public boolean isSocketConnected() {
-        return socket.isConnected();
+        try {
+            if (this.socket.getInetAddress().isReachable(500)){
+                return true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public String sendRequest(String content) {
