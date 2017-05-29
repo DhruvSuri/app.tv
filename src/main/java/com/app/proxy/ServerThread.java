@@ -23,7 +23,7 @@ public class ServerThread {
 
     public boolean isSocketConnected() {
         try {
-            if (this.socket.getInetAddress().isReachable(500)){
+            if (this.socket.getInetAddress().isReachable(1000)){
                 return true;
             }
         } catch (IOException e) {
