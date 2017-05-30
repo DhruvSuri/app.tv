@@ -84,10 +84,10 @@ public class SocketService {
                 }
             });
             try {
-                String response = future.get(2, TimeUnit.SECONDS);
+                String response = future.get(4, TimeUnit.SECONDS);
                 if (response != null) {
                     queue.add(serverThread);
-                    System.out.println("Response from API : " + response);
+//                    System.out.println("Response from API : " + response);
                     return response;
                 }
                 serverThread.close();
