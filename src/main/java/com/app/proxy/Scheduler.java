@@ -22,7 +22,7 @@ public class Scheduler {
     }
 
 
-    @Scheduled
+    @Scheduled(fixedRate = 2000)
     public void monitorThreadPool(){
         socketService.checkPoolHealth();
     }
