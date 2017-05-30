@@ -93,6 +93,7 @@ public class SocketService {
                 serverThread.close();
                 System.out.println("Retrying .... Null Response from API");
             } catch (TimeoutException e) {
+                //TODO might be due to blockage
                 System.err.println("Thread timed out.Removing from queue... Retrying");
                 serverThread.close(); // Killing orphan threads
             } catch (InterruptedException e) {
