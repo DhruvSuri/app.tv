@@ -63,12 +63,14 @@ public class SocketService {
     }
 
     public String sendProxyRequest(String url) {
+
         if (queue.size() == 0) {
             System.out.println("No Connections available..!!");
             return null;
         }
 
-        while (queue.size() > 0) {
+        int retry = 0;
+        while (queue.size() > 0 && retry++ < 5) {
             System.out.println("Queue size : " + queue.size());
             ServerThread serverThread = queue.poll();
 
@@ -78,16 +80,18 @@ public class SocketService {
 
                 public String call() throws Exception {
                     System.out.println("SENDING TO: " + serverThread.hashCode());
-                    String response = serverThread.sendRequest(url);
-                    if (response != null){
-                        queue.add(serverThread);
-                        return response;
-                    }
-                    return null;
+                    return serverThread.sendRequest(url);
                 }
             });
             try {
-                System.out.println("Response from API : " + future.get(2, TimeUnit.SECONDS)); //timeout is in 2 seconds
+                String response = future.get(2, TimeUnit.SECONDS);
+                if (response != null) {
+                    queue.add(serverThread);
+                    System.out.println("Response from API : " + response);
+                    return response;
+                }
+                serverThread.close();
+                System.out.println("Retrying .... Null Response from API");
             } catch (TimeoutException e) {
                 System.err.println("Thread timed out.Removing from queue... Retrying");
                 serverThread.close(); // Killing orphan threads
@@ -103,7 +107,11 @@ public class SocketService {
         return null;
     }
 
-
+    public void checkPoolHealth() {
+        if (queue.size() < 5) {
+            System.out.println("[Alert] Pool status : Red...");
+        }
+    }
 }
 
 

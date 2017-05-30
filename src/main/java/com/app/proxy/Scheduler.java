@@ -20,4 +20,10 @@ public class Scheduler {
     public void proxyListCleaner() {
         socketService.cleanConnectionPool();
     }
+
+
+    @Scheduled
+    public void monitorThreadPool(){
+        socketService.checkPoolHealth();
+    }
 }
