@@ -7,6 +7,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * Created by dhruv.suri on 11/05/17.
@@ -71,16 +72,42 @@ public class SocketService {
             System.out.println(queue.size());
             ServerThread serverThread = queue.poll();
 
-            System.out.println("SENDING TO: " + serverThread.hashCode());
-            String response = serverThread.sendRequest(url);
-            if (response != null){
-                queue.add(serverThread);
-                return response;
+            
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<String> future = executor.submit(new Callable() {
+
+                public String call() throws Exception {
+                    System.out.println("SENDING TO: " + serverThread.hashCode());
+                    String response = serverThread.sendRequest(url);
+                    if (response != null){
+                        queue.add(serverThread);
+                        return response;
+                    }
+                    return null;
+                }
+            });
+            try {
+                //TODO orphan threads kill connection
+
+                //Decide timeout from heuristics
+                System.out.println(future.get(2, TimeUnit.SECONDS)); //timeout is in 2 seconds
+            } catch (TimeoutException e) {
+                System.err.println("Timeout");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
             }
+            executor.shutdownNow();
         }
 
 
         return null;
+    }
+
+
+    public static void main(String args[]){
+
     }
 
 }
