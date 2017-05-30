@@ -72,7 +72,7 @@ public class SocketService {
             System.out.println(queue.size());
             ServerThread serverThread = queue.poll();
 
-            
+
             ExecutorService executor = Executors.newSingleThreadExecutor();
             Future<String> future = executor.submit(new Callable() {
 
@@ -90,7 +90,7 @@ public class SocketService {
                 //TODO orphan threads kill connection
 
                 //Decide timeout from heuristics
-                System.out.println(future.get(2, TimeUnit.SECONDS)); //timeout is in 2 seconds
+                System.out.println(future.get(3, TimeUnit.SECONDS)); //timeout is in 2 seconds
             } catch (TimeoutException e) {
                 System.err.println("Timeout");
             } catch (InterruptedException e) {
