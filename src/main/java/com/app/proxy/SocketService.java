@@ -69,7 +69,7 @@ public class SocketService {
         }
 
         while (queue.size() > 0) {
-            System.out.println(queue.size());
+            System.out.println("Queue size : " + queue.size());
             ServerThread serverThread = queue.poll();
 
 
@@ -87,12 +87,10 @@ public class SocketService {
                 }
             });
             try {
-                //TODO orphan threads kill connection
-
-                //Decide timeout from heuristics
-                System.out.println(future.get(3, TimeUnit.SECONDS)); //timeout is in 2 seconds
+                System.out.println("Response from API : " + future.get(2, TimeUnit.SECONDS)); //timeout is in 2 seconds
             } catch (TimeoutException e) {
-                System.err.println("Timeout");
+                System.err.println("Thread timed out.Removing from queue... Retrying");
+                serverThread.close(); // Killing orphan threads
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {
@@ -105,10 +103,6 @@ public class SocketService {
         return null;
     }
 
-
-    public static void main(String args[]){
-
-    }
 
 }
 

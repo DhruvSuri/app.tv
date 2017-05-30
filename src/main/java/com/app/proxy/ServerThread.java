@@ -32,6 +32,17 @@ public class ServerThread {
         return false;
     }
 
+    public void close(){
+        try {
+            outputStream.close();
+            inputStream.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public String sendRequest(String content) {
         if (content != null) {
             outputStream.println(content);
