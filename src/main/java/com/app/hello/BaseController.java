@@ -46,12 +46,8 @@ public class BaseController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "proxy")
-    public String doProxy(WebRequest request, @RequestHeader("Authorization") String apikey) {
-        if (!proxyService.authorizeUser(apikey)) {
-            return "Authorization Failed";
-        }
-        proxyService.doProxy(request.getParameterMap());
-        return null;
+    public String doProxy(@RequestParam("url") String url) {
+        return proxyService.doProxy(url);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "clearProxyList")

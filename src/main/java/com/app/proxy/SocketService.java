@@ -64,14 +64,14 @@ public class SocketService {
 
     public String sendProxyRequest(String url) {
 
-        if (queue.size() == 0) {
-            System.out.println("No Connections available..!!");
-            return null;
-        }
+        while (true) {
+            if (queue.size() == 0) {
+                return "No Connections available..!! Please contact support";
+            }
 
-        int retry = 0;
-        while (queue.size() > 0 && retry++ < 5) {
             System.out.println("Queue size : " + queue.size());
+
+
             ServerThread serverThread = queue.poll();
 
 
@@ -94,7 +94,7 @@ public class SocketService {
                 System.out.println("Retrying .... Null Response from API");
             } catch (TimeoutException e) {
                 //TODO might be due to blockage
-                System.err.println("Thread timed out.Removing from queue... Retrying");
+                System.err.println("Thread timed out.Removing from queue and Retrying");
                 serverThread.close(); // Killing orphan threads
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -103,14 +103,11 @@ public class SocketService {
             }
             executor.shutdownNow();
         }
-
-
-        return null;
     }
 
     public void checkPoolHealth() {
         if (queue.size() < 5) {
-            System.out.println("[Alert] Pool status : Red...");
+            System.out.println("[Alert] Pool status : Red..." + queue.size());
         }
     }
 }

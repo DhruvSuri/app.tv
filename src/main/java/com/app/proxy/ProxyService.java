@@ -17,19 +17,10 @@ public class ProxyService {
     @Autowired
     SocketService socketService;
 
-    public void doProxy(Map<String, String[]> headers) {
-        String response = socketService.sendProxyRequest(headers.get("url")[0]);
-        System.out.println(response);
-
-        if (!headers.containsKey("url")) {
-            headers.remove("url");
+    public String doProxy(String url) {
+        if (url.isEmpty()){
+            return "Url should not be emply";
         }
-        for (Map.Entry<String, String[]> entry : headers.entrySet()) {
-            System.out.print(entry.getKey());
-        }
-    }
-
-    public boolean authorizeUser(String token) {
-        return true;
+        return socketService.sendProxyRequest(url);
     }
 }
