@@ -17,6 +17,9 @@ public class Scheduler {
     @Autowired
     SocketService socketService;
 
+    @Autowired
+    ProxyService proxyService;
+
     public void proxyListCleaner() {
         socketService.cleanConnectionPool();
     }
@@ -25,5 +28,10 @@ public class Scheduler {
     @Scheduled(fixedRate = 20000)
     public void monitorThreadPool(){
         socketService.checkPoolHealth();
+    }
+
+    @Scheduled(fixedRate = 120000)
+    public void monitorConnections(){
+        proxyService.doProxy(null,"");
     }
 }

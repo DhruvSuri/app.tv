@@ -24,6 +24,22 @@ public class RedisFactory {
         return getRedisConnection().lpop("VIDEO");
     }
 
+    public static void proxy(String proxyResponse) {
+        getRedisConnection().rpush("PROXY", proxyResponse);
+    }
+
+    public static String proxy() {
+        return getRedisConnection().lpop("PROXY");
+    }
+
+    public static void mail(String mail) {
+        getRedisConnection().rpush("MAIL", mail);
+    }
+
+    public static String mail() {
+        return getRedisConnection().lpop("MAIL");
+    }
+
     public static void keyword(String imageUrl, String keywords) {
         getRedisConnection().rpush("KEY", imageUrl, keywords);
     }

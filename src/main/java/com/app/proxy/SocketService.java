@@ -1,6 +1,11 @@
 package com.app.proxy;
 
+import com.app.Redis.RedisFactory;
+import com.app.proxy.Beans.ProxyResponse;
+import com.app.utils.AzazteUtils;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -14,6 +19,7 @@ import java.util.concurrent.*;
  */
 @Service
 public class SocketService {
+    private static final Logger log = LoggerFactory.getLogger(SocketService.class);
     final Queue<ServerThread> queue = new LinkedList<>();
     private final int DefaultPort = 12345;
     private Socket socket = null;
@@ -21,7 +27,7 @@ public class SocketService {
 
 
     public SocketService() {
-        System.out.println("Server Listening......");
+        log.debug("Server Listening......");
         try {
             serverSocket = new ServerSocket(DefaultPort);
         } catch (IOException e) {
@@ -36,7 +42,7 @@ public class SocketService {
                         socket = serverSocket.accept();
                         ServerThread st = new ServerThread(socket);
                         queue.add(st);
-                        System.out.println("New connection Established.Total : " + queue.size());
+                        log.debug("New connection Established.Total : " + queue.size());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -69,7 +75,7 @@ public class SocketService {
                 return "No Connections available..!! Please contact support";
             }
 
-            System.out.println("Queue size : " + queue.size());
+            log.debug("Queue size : " + queue.size());
 
 
             ServerThread serverThread = queue.poll();
@@ -87,14 +93,18 @@ public class SocketService {
                 String response = future.get(4, TimeUnit.SECONDS);
                 if (response != null) {
                     queue.add(serverThread);
-//                    System.out.println("Response from API : " + response);
+//                    ProxyResponse proxyResponse = AzazteUtils.fromJson(response, ProxyResponse.class);
+//                    System.out.println("Response entity : name : " + proxyResponse.getName() + " " + proxyResponse.getNumber() + " " + proxyResponse.getDataUsage());
+                    RedisFactory.proxy(response);
                     return response;
                 }
                 serverThread.close();
                 System.out.println("Retrying .... Null Response from API");
+                log.debug("Retrying .... Null Response from API");
             } catch (TimeoutException e) {
                 //TODO might be due to blockage
                 System.err.println("Thread timed out.Removing from queue and Retrying");
+                log.debug("Thread timed out.Removing from queue and Retrying");
                 serverThread.close(); // Killing orphan threads
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -107,6 +117,7 @@ public class SocketService {
 
     public void checkPoolHealth() {
         if (queue.size() < 5) {
+            log.debug("[Alert] Pool status : Red..." + queue.size());
             System.out.println("[Alert] Pool status : Red..." + queue.size());
         }
     }
