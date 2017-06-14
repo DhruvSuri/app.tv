@@ -12,10 +12,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
 import java.io.FileOutputStream;
+import java.util.LinkedList;
+import java.util.Queue;
 
 @RestController
 public class BaseController {
     public static Boolean isPollingEnabled = true;
+
+    public Queue<Message> q = new LinkedList<>();
 
     @Autowired
     ImageService imageService;
@@ -65,6 +69,50 @@ public class BaseController {
         socketService.cleanConnectionPool();
         System.out.println("Cleared connection pool");
     }
+
+    @RequestMapping(method = RequestMethod.GET, value = "testMulti")
+    public void testMulti(@RequestParam("num") int num,@RequestParam("msg") String msg){
+        if (num == 1){
+            new Worker(new Message(msg)).process();
+        }
+        if (num == 2){
+            System.out.println(q.size());
+            Message poll = q.poll();
+            synchronized (poll){
+                poll.notify();
+                System.out.println("Notifier");
+            }
+        }
+    }
+
+    class    Worker{
+        private Message msg;
+
+        public Worker(Message msg){
+            this.msg = msg;
+        }
+
+        public void process(){
+            synchronized (msg){
+                try {
+                    q.add(msg);
+                    System.out.println("Adding to Queue : " + msg);
+                    msg.wait();
+                    System.out.println("Notified");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    class Message{
+        private String msg;
+        public Message(String msg){
+            this.msg = msg;
+        }
+    }
+
 
     @RequestMapping(method = RequestMethod.GET, value = "bonny")
     public String bonny() {
