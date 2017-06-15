@@ -64,11 +64,6 @@ public class BaseController {
         new MailService().sendProxyMail(text);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "clearProxyList")
-    public void clearProxyList() {
-        socketService.cleanConnectionPool();
-        System.out.println("Cleared connection pool");
-    }
 
     @RequestMapping(method = RequestMethod.GET, value = "testMulti")
     public void testMulti(@RequestParam("num") int num,@RequestParam("msg") String msg){

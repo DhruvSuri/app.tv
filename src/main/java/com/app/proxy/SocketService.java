@@ -2,10 +2,12 @@ package com.app.proxy;
 
 import com.app.Redis.RedisFactory;
 import com.app.proxy.Beans.ProxyResponse;
+import com.app.proxy.SocketIO.ChatObject;
 import com.app.utils.AzazteUtils;
-import com.corundumstudio.socketio.Configuration;
-import com.corundumstudio.socketio.SocketConfig;
-import com.corundumstudio.socketio.SocketIOServer;
+import com.corundumstudio.socketio.*;
+import com.corundumstudio.socketio.listener.ConnectListener;
+import com.corundumstudio.socketio.listener.DataListener;
+import com.corundumstudio.socketio.listener.DisconnectListener;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,106 +25,115 @@ import java.util.concurrent.*;
 @Service
 public class SocketService {
     private static final Logger log = LoggerFactory.getLogger(SocketService.class);
-    final Queue<ServerThread> queue = new LinkedList<>();
-    private final int DefaultPort = 12345;
-    private Socket socket = null;
-    private ServerSocket serverSocket = null;
+    private final int DefaultPort = 9000;
+    private final String DefaultHost = "52.66.66.36";
+    private final String DefaultEvent = "proxy";
+    private static SocketIOServer server;
+    private static SocketService prev;
 
 
     public SocketService() {
-        log.debug("Server Listening......");
-        try {
-            serverSocket = new ServerSocket(DefaultPort);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         new Thread() {
 
             public void run() {
-                while (true) {
-                    try {
-                        socket = serverSocket.accept();
-                        ServerThread st = new ServerThread(socket);
-                        queue.add(st);
-                        log.debug("New connection Established.Total : " + queue.size());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
+                Configuration config = new Configuration();
+                config.setHostname(DefaultHost);
+                config.setPingInterval(2000);
+                config.setPingTimeout(2500);
+                config.setPort(DefaultPort);
 
+                server = new SocketIOServer(config);
+
+                server.addEventListener(DefaultEvent, String.class, new DataListener<String>() {
+                    @Override
+                    public void onData(SocketIOClient client, String data, AckRequest ackRequest) {
+                        // broadcast messages to all clients
+                        client.sendEvent(DefaultEvent, "Received by server : " + data);
+                    }
+                });
+
+                server.addConnectListener(new ConnectListener() {
+                    @Override
+                    public void onConnect(SocketIOClient socketIOClient) {
+                        System.out.println("Connected socket : " + socketIOClient.getSessionId());
+                        System.out.println("Total Sockets available : " + server.getAllClients().size());
+                    }
+                });
+
+                server.addDisconnectListener(new DisconnectListener() {
+                    @Override
+                    public void onDisconnect(SocketIOClient socketIOClient) {
+                        System.out.println("disconnected socket : " + socketIOClient.getSessionId());
+                        System.out.println("Total Sockets available : " + server.getAllClients().size());
+                    }
+                });
+
+                server.start();
+
+                try {
+                    Thread.sleep(Integer.MAX_VALUE);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                server.stop();
+            }
         }.start();
 
 
     }
 
-    public void cleanConnectionPool() {
-        System.out.println("Cleaning : " + queue.size());
-        int size = queue.size();
-        int i = 0;
-        while (i < size) {
-            ServerThread serverThread = queue.poll();
-            if (serverThread.isSocketConnected()) {
-                queue.add(serverThread);
-            }
-            i++;
-        }
-        System.out.println("Cleaned : " + queue.size());
-    }
-
     public String sendProxyRequest(String url) {
 
         while (true) {
-            if (queue.size() == 0) {
-                return "No Connections available..!! Please contact support";
-            }
 
-            log.debug("Queue size : " + queue.size());
+            List<SocketIOClient> clients = (List<SocketIOClient>) server.getAllClients();
+            int size = clients.size();
 
+//            if (size == 0) {
+//                return "No active connections available";
+//            }
 
-            ServerThread serverThread = queue.poll();
+            final String[] response = new String[1];
+            SocketIOClient client = clients.get((int) (Math.random() % clients.size()));
 
+//        client.sendEvent(DefaultEvent, url);
 
-            ExecutorService executor = Executors.newSingleThreadExecutor();
-            Future<String> future = executor.submit(new Callable() {
-
-                public String call() throws Exception {
-                    System.out.println("SENDING TO: " + serverThread.hashCode());
-                    return serverThread.sendRequest(url);
+            client.sendEvent(DefaultEvent, new AckCallback<String>(String.class) {
+                @Override
+                public void onSuccess(String result) {
+                    System.out.println("Response from client: " + client.getSessionId() + " data: " + result);
+                    response[0] = result;
+                    synchronized (this){
+                        this.notify();
+                    }
                 }
-            });
+
+                @Override
+                public void onTimeout() {
+                    super.onTimeout();
+                    synchronized (this){
+                        this.notify();
+                    }
+                }
+            }, url);
+
             try {
-                String response = future.get(4, TimeUnit.SECONDS);
-                if (response != null) {
-                    queue.add(serverThread);
-//                    ProxyResponse proxyResponse = AzazteUtils.fromJson(response, ProxyResponse.class);
-//                    System.out.println("Response entity : name : " + proxyResponse.getName() + " " + proxyResponse.getNumber() + " " + proxyResponse.getDataUsage());
-                    RedisFactory.proxy(response);
-                    return response;
+                synchronized (this){
+                    this.wait();
                 }
-                serverThread.close();
-                System.out.println("Retrying .... Null Response from API");
-                log.debug("Retrying .... Null Response from API");
-            } catch (TimeoutException e) {
-                //TODO might be due to blockage
-                System.err.println("Thread timed out.Removing from queue and Retrying");
-                log.debug("Thread timed out.Removing from queue and Retrying");
-                serverThread.close(); // Killing orphan threads
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
             }
-            executor.shutdownNow();
-        }
-    }
 
-    public void checkPoolHealth() {
-        if (queue.size() < 5) {
-            log.debug("[Alert] Pool status : Red..." + queue.size());
-            System.out.println("[Alert] Pool status : Red..." + queue.size());
+            if (response.length == 0){
+                System.out.println("Retrying ...");
+                continue;
+            }
+
+            return response[0];
         }
+
     }
 }
 
