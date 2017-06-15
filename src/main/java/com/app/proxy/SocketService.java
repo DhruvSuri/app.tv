@@ -26,10 +26,8 @@ import java.util.concurrent.*;
 public class SocketService {
     private static final Logger log = LoggerFactory.getLogger(SocketService.class);
     private final int DefaultPort = 9000;
-    private final String DefaultHost = "52.66.66.36";
     private final String DefaultEvent = "proxy";
     private static SocketIOServer server;
-    private static SocketService prev;
 
 
     public SocketService() {
@@ -37,7 +35,6 @@ public class SocketService {
 
             public void run() {
                 Configuration config = new Configuration();
-                config.setHostname(DefaultHost);
                 config.setPingInterval(2000);
                 config.setPingTimeout(2500);
                 config.setPort(DefaultPort);
@@ -47,10 +44,11 @@ public class SocketService {
                 server.addEventListener(DefaultEvent, String.class, new DataListener<String>() {
                     @Override
                     public void onData(SocketIOClient client, String data, AckRequest ackRequest) {
-                        // broadcast messages to all clients
+                        System.out.println("Received by server : " + data);
                         client.sendEvent(DefaultEvent, "Received by server : " + data);
                     }
                 });
+
 
                 server.addConnectListener(new ConnectListener() {
                     @Override
