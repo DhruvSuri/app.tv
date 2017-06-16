@@ -34,6 +34,7 @@ public class SocketService {
         new Thread() {
 
             public void run() {
+                log.debug("Starting server");
                 Configuration config = new Configuration();
                 config.setPingInterval(2000);
                 config.setPingTimeout(2500);
@@ -53,16 +54,20 @@ public class SocketService {
                 server.addConnectListener(new ConnectListener() {
                     @Override
                     public void onConnect(SocketIOClient socketIOClient) {
-                        System.out.println("Connected socket : " + socketIOClient.getSessionId());
-                        System.out.println("Total Sockets available : " + server.getAllClients().size());
+                        log.debug("Connected socket : " + socketIOClient.getSessionId());
+                        log.debug("Total Sockets available : " + server.getAllClients().size());
+//                        System.out.println("Connected socket : " + socketIOClient.getSessionId());
+//                        System.out.println("Total Sockets available : " + server.getAllClients().size());
                     }
                 });
 
                 server.addDisconnectListener(new DisconnectListener() {
                     @Override
                     public void onDisconnect(SocketIOClient socketIOClient) {
-                        System.out.println("disconnected socket : " + socketIOClient.getSessionId());
-                        System.out.println("Total Sockets available : " + server.getAllClients().size());
+                        log.debug("Disconnected socket : " + socketIOClient.getSessionId());
+                        log.debug("Total Sockets available : " + server.getAllClients().size());
+//                        System.out.println("disconnected socket : " + socketIOClient.getSessionId());
+//                        System.out.println("Total Sockets available : " + server.getAllClients().size());
                     }
                 });
 
