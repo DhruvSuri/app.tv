@@ -42,22 +42,11 @@ public class SocketService {
 
                 server = new SocketIOServer(config);
 
-                server.addEventListener(DefaultEvent, String.class, new DataListener<String>() {
-                    @Override
-                    public void onData(SocketIOClient client, String data, AckRequest ackRequest) {
-                        System.out.println("Received by server : " + data);
-                        client.sendEvent(DefaultEvent, "Received by server : " + data);
-                    }
-                });
-
-
                 server.addConnectListener(new ConnectListener() {
                     @Override
                     public void onConnect(SocketIOClient socketIOClient) {
                         log.debug("Connected socket : " + socketIOClient.getSessionId());
                         log.debug("Total Sockets available : " + server.getAllClients().size());
-//                        System.out.println("Connected socket : " + socketIOClient.getSessionId());
-//                        System.out.println("Total Sockets available : " + server.getAllClients().size());
                     }
                 });
 
@@ -66,8 +55,6 @@ public class SocketService {
                     public void onDisconnect(SocketIOClient socketIOClient) {
                         log.debug("Disconnected socket : " + socketIOClient.getSessionId());
                         log.debug("Total Sockets available : " + server.getAllClients().size());
-//                        System.out.println("disconnected socket : " + socketIOClient.getSessionId());
-//                        System.out.println("Total Sockets available : " + server.getAllClients().size());
                     }
                 });
 
@@ -90,51 +77,55 @@ public class SocketService {
 
         while (true) {
 
-            List<SocketIOClient> clients = (List<SocketIOClient>) server.getAllClients();
+            Collection<SocketIOClient> clients = server.getAllClients();
             int size = clients.size();
 
-//            if (size == 0) {
-//                return "No active connections available";
-//            }
+            if (size == 0) {
+                return "No active connections available";
+            }
 
-            final String[] response = new String[1];
-            SocketIOClient client = clients.get((int) (Math.random() % clients.size()));
-
-//        client.sendEvent(DefaultEvent, url);
+            final ArrayList<String> response = new ArrayList<String>();
+            SocketIOClient client = clients.iterator().next();
 
             client.sendEvent(DefaultEvent, new AckCallback<String>(String.class) {
                 @Override
                 public void onSuccess(String result) {
                     System.out.println("Response from client: " + client.getSessionId() + " data: " + result);
-                    response[0] = result;
+                    response.add(result);
                     synchronized (this){
                         this.notify();
                     }
                 }
 
                 @Override
-                public void onTimeout() {
-                    super.onTimeout();
+                public void onTimeout(){
+                    System.out.println("Timed out");
                     synchronized (this){
                         this.notify();
                     }
                 }
             }, url);
 
-            try {
-                synchronized (this){
-                    this.wait();
+            synchronized (this){
+                try {
+                    System.out.println("Waiting - ");
+                    this.wait(2000);
+                    System.out.println("Notified - ");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
 
-            if (response.length == 0){
-                System.out.println("Retrying ...");
+            if (response.size() == 0){
                 continue;
             }
 
-            return response[0];
+            if (response.size() > 1){
+                log.debug("Horrible ... !! How can number of responses go above 1... Gandu coding skills");
+                System.out.println("Horrible ... !! How can number of responses go above 1... Gandu coding skills");
+            }
+
+            return response.get(0);
         }
 
     }
