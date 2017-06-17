@@ -90,7 +90,7 @@ public class SocketService {
             client.sendEvent(DefaultEvent, new AckCallback<String>(String.class) {
                 @Override
                 public void onSuccess(String result) {
-                    System.out.println("Response from client: " + client.getSessionId() + " data: " + result);
+                    log.debug("Response from client: " + client.getSessionId() + " data: " + result.substring(0,20));
                     response.add(result);
                     synchronized (this){
                         this.notify();
@@ -99,7 +99,7 @@ public class SocketService {
 
                 @Override
                 public void onTimeout(){
-                    System.out.println("Timed out");
+                    log.debug("Timed out");
                     synchronized (this){
                         this.notify();
                     }
@@ -108,9 +108,9 @@ public class SocketService {
 
             synchronized (this){
                 try {
-                    System.out.println("Waiting - ");
+                    log.debug("Waiting - ");
                     this.wait(2000);
-                    System.out.println("Notified - ");
+                    log.debug("Notified - ");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
