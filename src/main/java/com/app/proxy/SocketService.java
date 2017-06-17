@@ -90,17 +90,17 @@ public class SocketService {
             client.sendEvent(DefaultEvent, new AckCallback<String>(String.class) {
                 @Override
                 public void onSuccess(String result) {
-                    log.debug("Response from client: " + client.getSessionId() + " data: " + result.substring(0,20));
-                    response.add(result);
                     synchronized (this){
+                        log.debug("Response from client: " + client.getSessionId() + " data: " + result.substring(0,20));
+                        response.add(result);
                         this.notify();
                     }
                 }
 
                 @Override
                 public void onTimeout(){
-                    log.debug("Timed out");
                     synchronized (this){
+                        log.debug("Timed out");
                         this.notify();
                     }
                 }
