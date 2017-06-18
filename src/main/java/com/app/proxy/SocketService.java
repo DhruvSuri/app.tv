@@ -85,47 +85,49 @@ public class SocketService {
             }
 
             final ArrayList<String> response = new ArrayList<String>();
+            final Thread currentThread = Thread.currentThread();
             SocketIOClient client = clients.iterator().next();
 
-            client.sendEvent(DefaultEvent, new AckCallback<String>(String.class) {
+            client.sendEvent(DefaultEvent, new AckCallback<String>(String.class,2) {
                 @Override
                 public void onSuccess(String result) {
-                    synchronized (this){
-                        log.debug("Response from client: " + client.getSessionId() + " data: " + result.substring(0,20));
+                    synchronized (currentThread){
+                        log.debug("Response from client: " + client.getSessionId() + " data: " + result.substring(0,20) + "  From thread : " + currentThread.getId());
                         response.add(result);
-                        this.notify();
+                        currentThread.notify();
                     }
                 }
 
                 @Override
                 public void onTimeout(){
-                    synchronized (this){
+                    synchronized (Thread.currentThread()){
                         log.debug("Timed out");
-                        this.notify();
+                        currentThread.notify();
                     }
                 }
             }, url);
 
-            synchronized (this){
+            synchronized (currentThread){
                 try {
-                    log.debug("Waiting - ");
-                    this.wait(2000);
-                    log.debug("Notified - ");
+                    log.debug("Waiting - " +"  From thread : " + currentThread.getId());
+                    currentThread.wait();
+                    log.debug("Notified - " + "  From thread : " + currentThread.getId());
+                    if (response.size() == 0){
+                        log.debug("Response size 0... Continuing ");
+                        continue;
+                    }
+
+                    if (response.size() > 1){
+                        log.debug("Horrible ... !! How can number of responses go above 1... Gandu coding skills");
+                        System.out.println("Horrible ... !! How can number of responses go above 1... Gandu coding skills");
+                    }
+
+                    return response.get(0);
+
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-
-            if (response.size() == 0){
-                continue;
-            }
-
-            if (response.size() > 1){
-                log.debug("Horrible ... !! How can number of responses go above 1... Gandu coding skills");
-                System.out.println("Horrible ... !! How can number of responses go above 1... Gandu coding skills");
-            }
-
-            return response.get(0);
         }
 
     }
