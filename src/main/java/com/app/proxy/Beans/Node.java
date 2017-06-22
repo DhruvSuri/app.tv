@@ -52,7 +52,6 @@ public class Node {
         return "Node{" +
                 "profile=" + profile +
                 ", sessionID=" + sessionID +
-                ", client=" + client +
                 '}';
     }
 }

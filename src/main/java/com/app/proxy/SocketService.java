@@ -99,7 +99,7 @@ public class SocketService {
         for (Node node : list) {
             if (node.getSessionID() == sessionID) {
                 list.remove(node);
-                log.debug(node.getProfile().toString());
+                log.debug("REMOVING FROM LIST: " + node);
                 break;
             }
         }
