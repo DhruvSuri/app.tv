@@ -1,13 +1,19 @@
 package com.app.proxy.Beans;
 
+import okhttp3.Headers;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
+
 /**
  * Created by dhruv.suri on 31/05/17.
  */
 public class ProxyResponse {
     private String name;
     private String number;
-    private String response;
-    private int dataUsage;
+    private int responseStatus;
+    private long ttlb;
+    private String responseBody;
 
     public String getName() {
         return name;
@@ -25,19 +31,38 @@ public class ProxyResponse {
         this.number = number;
     }
 
-    public String getResponse() {
-        return response;
+    public int getResponseStatus() {
+        return responseStatus;
     }
 
-    public void setResponse(String response) {
-        this.response = response;
+    public void setResponseStatus(int responseStatus) {
+        this.responseStatus = responseStatus;
     }
 
-    public int getDataUsage() {
-        return dataUsage;
+    public String getResponseBody() {
+        return responseBody;
     }
 
-    public void setDataUsage(int dataUsage) {
-        this.dataUsage = dataUsage;
+    public void setResponseBody(String responseBody) {
+        this.responseBody = responseBody;
+    }
+
+    public long getTtlb() {
+        return ttlb;
+    }
+
+    public void setTtlb(long ttlb) {
+        this.ttlb = ttlb;
+    }
+
+    @Override
+    public String toString() {
+        return "ProxyResponse{" +
+                "name='" + name + '\'' +
+                ", number='" + number + '\'' +
+                ", responseStatus=" + responseStatus +
+                ", ttlb=" + ttlb +
+                ", responseBody='" + responseBody + '\'' +
+                '}';
     }
 }

@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-
 /**
  * Created by dhruv.suri on 30/05/17.
  */
@@ -22,6 +20,6 @@ public class Scheduler {
 
     @Scheduled(fixedRate = 120000)
     public void monitorConnections(){
-        proxyService.doProxy(null,"");
+        proxyService.doProxy(null,"", 10);
     }
 }

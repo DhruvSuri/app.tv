@@ -53,8 +53,11 @@ public class BaseController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "proxy")
-    public String doProxy(WebRequest request, @RequestParam("url") String url) {
-        return proxyService.doProxy(request,url);
+    public String doProxy(WebRequest request, @RequestParam("url") String url, @RequestParam(value = "timeout", required = false) Integer timeout) {
+        if (timeout == null){
+            timeout = 30;
+        }
+        return proxyService.doProxy(request, url, timeout);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "mail")
@@ -66,29 +69,29 @@ public class BaseController {
 
 
     @RequestMapping(method = RequestMethod.GET, value = "testMulti")
-    public void testMulti(@RequestParam("num") int num,@RequestParam("msg") String msg){
-        if (num == 1){
+    public void testMulti(@RequestParam("num") int num, @RequestParam("msg") String msg) {
+        if (num == 1) {
             new Worker(new Message(msg)).process();
         }
-        if (num == 2){
+        if (num == 2) {
             System.out.println(q.size());
             Message poll = q.poll();
-            synchronized (poll){
+            synchronized (poll) {
                 poll.notify();
                 System.out.println("Notifier");
             }
         }
     }
 
-    class    Worker{
+    class Worker {
         private Message msg;
 
-        public Worker(Message msg){
+        public Worker(Message msg) {
             this.msg = msg;
         }
 
-        public void process(){
-            synchronized (msg){
+        public void process() {
+            synchronized (msg) {
                 try {
                     q.add(msg);
                     System.out.println("Adding to Queue : " + msg);
@@ -101,9 +104,10 @@ public class BaseController {
         }
     }
 
-    class Message{
+    class Message {
         private String msg;
-        public Message(String msg){
+
+        public Message(String msg) {
             this.msg = msg;
         }
     }
