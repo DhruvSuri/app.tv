@@ -44,6 +44,8 @@ public class SocketService {
             public void run() {
                 log.debug("Starting server");
                 Configuration config = new Configuration();
+                config.setPingInterval(5);
+                config.setPingTimeout(30);
                 config.setMaxFramePayloadLength(Integer.MAX_VALUE);
                 config.setMaxHttpContentLength(Integer.MAX_VALUE);
                 config.setPort(DefaultPort);
@@ -62,7 +64,7 @@ public class SocketService {
                             @Override
                             public void onSuccess(String profileString) {
                                 node.setProfile(AzazteUtils.fromJson(profileString, Profile.class));
-                                System.out.println(profileString);
+                                log.debug(profileString);
                             }
                         });
 
@@ -97,6 +99,7 @@ public class SocketService {
         for (Node node : list) {
             if (node.getSessionID() == sessionID) {
                 list.remove(node);
+                log.debug(node.getProfile().toString());
                 break;
             }
         }
