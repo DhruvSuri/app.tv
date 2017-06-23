@@ -44,8 +44,8 @@ public class SocketService {
             public void run() {
                 log.debug("Starting server");
                 Configuration config = new Configuration();
-                config.setPingInterval(5);
-                config.setPingTimeout(30);
+                config.setPingInterval(5000);
+                config.setPingTimeout(30000);
                 config.setMaxFramePayloadLength(Integer.MAX_VALUE);
                 config.setMaxHttpContentLength(Integer.MAX_VALUE);
                 config.setPort(DefaultPort);
@@ -175,6 +175,7 @@ public class SocketService {
             synchronized (currentThread) {
                 try {
                     log.debug("Waiting - " + "  From thread : " + currentThread.getId());
+                    log.debug("Sending request to " + node.getProfile());
                     currentThread.wait(timeout * 1000);
                     log.debug("Notified - " + "  From thread : " + currentThread.getId());
                     if (response.size() == 0) {
