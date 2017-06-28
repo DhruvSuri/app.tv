@@ -36,7 +36,7 @@ public class SocketService {
     private final String DeviceDetails = "device_details";
     private static SocketIOServer server;
     private String str = "";
-    private List<Node> list = new ArrayList<>();
+    private List<Node> list = Collections.synchronizedList(new ArrayList<>());
 
     public SocketService() {
         Thread tt = new Thread() {
@@ -64,7 +64,7 @@ public class SocketService {
                             @Override
                             public void onSuccess(String profileString) {
                                 node.setProfile(AzazteUtils.fromJson(profileString, Profile.class));
-                                log.debug(profileString);
+                                log.debug("Profile String : " + profileString);
                             }
                         });
 
@@ -156,9 +156,10 @@ public class SocketService {
                             ProxyResponse proxyResponse = AzazteUtils.fromJson(result, ProxyResponse.class);
                             response.add(proxyResponse);
                             log.debug("Response from client: " + client.getSessionId() + " data: " + proxyResponse.getResponseBody().substring(0, 20) + "  From thread : " + currentThread.getId());
-                            currentThread.notify();
                         } catch (Exception e) {
                             e.printStackTrace();
+                        } finally {
+                            currentThread.notify();
                         }
                     }
                 }
