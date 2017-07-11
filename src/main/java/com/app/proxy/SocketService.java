@@ -200,6 +200,10 @@ public class SocketService {
 
 
     }
+
+    public int getConnectionsSize(){
+        return list.size();
+    }
 }
 
 
